@@ -1,6 +1,6 @@
 # user-logger-website
 
-## Related project
+## Accompanying project
 
 https://github.com/dr-matt-smith/unity-user-action-logger-web
 
