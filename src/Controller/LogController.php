@@ -60,9 +60,11 @@ class LogController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $isAdmin = $this->get('security.authorization_checker')->isGranted('ROLE_ADMIN');
+
             $user = $this->getUser();
             $owner = $log->getApplication()->getOwner();
-            if($user != $owner){
+            if($user != $owner && !$isAdmin){
                 return new Response("sorry - you cannot create a log for an application you don't own ...");
             }
 
