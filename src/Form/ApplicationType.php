@@ -2,28 +2,26 @@
 
 namespace App\Form;
 
-use App\Entity\Log;
+use App\Entity\Application;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class LogType extends AbstractType
+class ApplicationType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('timestamp')
-            ->add('application')
-            ->add('participant')
-            ->add('scene')
-            ->add('message')
+            ->add('title')
+            ->add('owner')
+            ->add('category')
         ;
     }
 
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => Log::class,
+            'data_class' => Application::class,
         ]);
     }
 }

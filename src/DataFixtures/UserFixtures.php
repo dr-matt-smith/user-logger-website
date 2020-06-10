@@ -3,6 +3,7 @@
 namespace App\DataFixtures;
 
 use App\Entity\Recipe;
+use App\Entity\Role;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\Persistence\ObjectManager;
 
@@ -12,6 +13,7 @@ use App\Entity\User;
 class UserFixtures extends Fixture
 {
      private $passwordEncoder;
+     private $manager;
 
      public function __construct(UserPasswordEncoderInterface $passwordEncoder)
      {
@@ -20,21 +22,23 @@ class UserFixtures extends Fixture
 
     public function load(ObjectManager $manager)
     {
+        $this->manager = $manager;
+
+        $roleAdmin = new Role();
+        $roleAdmin->setName("ROLE_ADMIN");
+        $this->manager->persist($roleAdmin);
+
+        $roleUser = new Role();
+        $roleUser->setName("ROLE_USER");
+        $this->manager->persist($roleUser);
+
+
         // create objects
-        $userAdmin = $this->createUser('admin@admin.com', 'myblackcat123', 'ROLE_ADMIN');
-        $userMatt = $this->createUser('Lauren.M.Maher@mytudublin.ie', 'housegame99', 'ROLE_ADMIN');
-
-
-        // add to DB queue
-        $manager->persist($userAdmin);
-        $manager->persist($userMatt);
-
-        // send query to DB
-        $manager->flush();
-
+        $this->createUser('admin@admin.com', 'myblackcat123', $roleAdmin);
+        $this->createUser('Lauren.M.Maher@mytudublin.ie', 'housegame99', $roleUser);
     }
 
-    private function createUser($username, $plainPassword, $role = 'ROLE_USER'):User
+    private function createUser($username, $plainPassword, $role)
     {
         $user = new User();
         $user->setEmail($username);
@@ -44,6 +48,9 @@ class UserFixtures extends Fixture
         $encodedPassword = $this->passwordEncoder->encodePassword($user, $plainPassword);
         $user->setPassword($encodedPassword);
 
-        return $user;
+        $this->manager->persist($user);
+
+        // send query to DB
+        $this->manager->flush();
     }
 }

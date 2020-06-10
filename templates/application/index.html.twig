@@ -1,0 +1,65 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Application index{% endblock %}
+
+{% block body %}
+    <h1>Application index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Reseacher</th>
+                <th>Category</th>
+                <th>Title</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for application in applications %}
+
+            {% set display = false %}
+
+            {% if app.user == application.owner %}
+                {% set display = true %}
+            {% endif %}
+
+            {% if is_granted('ROLE_ADMIN') %}
+                {% set display = true %}
+            {% endif %}
+
+            {% if display %}
+            <tr>
+                <td>{{ application.id }}</td>
+                <td>{{ application.owner }}</td>
+                <td>{{ application.category }}</td>
+                <td>{{ application.title }}</td>
+                <td>
+                    <a href="{{ path('application_show', {'id': application.id}) }}">show</a>
+                    <a href="{{ path('application_edit', {'id': application.id}) }}">edit</a>
+                </td>
+                <td>
+                    <form method="get" action="{{ path('log_aplication', {'id': application.id}) }} }}" class="form-group col-xs-6">
+                        <input type="submit" class="btn btn-primary" value="logs">
+                    </form>
+                    <p>
+                </td>
+            </tr>
+            {% endif %}
+        {% else %}
+            <tr>
+                <td colspan="3">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    {% if is_granted('ROLE_ADMIN') %}
+        <form method="GET" action="{{ path('application_new') }}" class="form-group col-xs-6">
+            <input type="submit" class="btn btn-primary" value="NEW">
+        </form>
+
+
+    {% endif %}
+
+{% endblock %}

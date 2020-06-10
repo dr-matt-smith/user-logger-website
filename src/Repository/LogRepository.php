@@ -2,15 +2,15 @@
 
 namespace App\Repository;
 
-use App\Entity\Log;
+use App\Entity\Role;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\Common\Persistence\ManagerRegistry;
-
+use Doctrine\Persistence\ManagerRegistry;
+use App\Entity\Log;
 /**
- * @method Log|null find($id, $lockMode = null, $lockVersion = null)
- * @method Log|null findOneBy(array $criteria, array $orderBy = null)
- * @method Log[]    findAll()
- * @method Log[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method Role|null find($id, $lockMode = null, $lockVersion = null)
+ * @method Role|null findOneBy(array $criteria, array $orderBy = null)
+ * @method Role[]    findAll()
+ * @method Role[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
 class LogRepository extends ServiceEntityRepository
 {
@@ -20,15 +20,15 @@ class LogRepository extends ServiceEntityRepository
     }
 
     // /**
-    //  * @return Log[] Returns an array of Log objects
+    //  * @return Role[] Returns an array of Role objects
     //  */
     /*
     public function findByExampleField($value)
     {
-        return $this->createQueryBuilder('l')
-            ->andWhere('l.exampleField = :val')
+        return $this->createQueryBuilder('r')
+            ->andWhere('r.exampleField = :val')
             ->setParameter('val', $value)
-            ->orderBy('l.id', 'ASC')
+            ->orderBy('r.id', 'ASC')
             ->setMaxResults(10)
             ->getQuery()
             ->getResult()
@@ -37,10 +37,10 @@ class LogRepository extends ServiceEntityRepository
     */
 
     /*
-    public function findOneBySomeField($value): ?Log
+    public function findOneBySomeField($value): ?Role
     {
-        return $this->createQueryBuilder('l')
-            ->andWhere('l.exampleField = :val')
+        return $this->createQueryBuilder('r')
+            ->andWhere('r.exampleField = :val')
             ->setParameter('val', $value)
             ->getQuery()
             ->getOneOrNullResult()

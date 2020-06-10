@@ -24,7 +24,7 @@ class Log
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $userId;
+    private $participant;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -35,6 +35,11 @@ class Log
      * @ORM\Column(type="string", length=255)
      */
     private $message;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Application::class, inversedBy="logs")
+     */
+    private $application;
 
     public function getId(): ?int
     {
@@ -53,14 +58,14 @@ class Log
         return $this;
     }
 
-    public function getUserId(): ?string
+    public function getParticipant(): ?string
     {
-        return $this->userId;
+        return $this->participant;
     }
 
-    public function setUserId(string $userId): self
+    public function setParticipant(string $participant): self
     {
-        $this->userId = $userId;
+        $this->participant = $participant;
 
         return $this;
     }
@@ -94,10 +99,25 @@ class Log
         $csv = "";
 
         $csv .= $this->id;
-        $csv .= ',' . $this->userId;
+        $csv .= ',' . $this->application->getId();
+        $csv .= ',' . $this->participant;
         $csv .= ',' . $this->timestamp->format("Y-m-d H:i:s");
         $csv .= ',' . $this->scene;
         $csv .= ',' . $this->message;
         return $csv . PHP_EOL;
     }
+
+    public function getApplication(): ?Application
+    {
+        return $this->application;
+    }
+
+    public function setApplication(?Application $application): self
+    {
+        $this->application = $application;
+
+        return $this;
+    }
+
+
 }

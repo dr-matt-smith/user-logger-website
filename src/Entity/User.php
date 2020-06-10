@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -28,10 +30,22 @@ class User implements UserInterface
      */
     private $password;
 
+
+
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\OneToMany(targetEntity=Application::class, mappedBy="owner")
+     */
+    private $applications;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Role::class, inversedBy="users")
      */
     private $role;
+
+    public function __construct()
+    {
+        $this->title = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -65,7 +79,7 @@ class User implements UserInterface
      */
     public function getRoles(): array
     {
-        return [$this->role];
+        return [$this->role->getName()];
     }
 
     /**
@@ -100,15 +114,53 @@ class User implements UserInterface
         // $this->plainPassword = null;
     }
 
-    public function getRole(): ?string
+
+
+    /**
+     * @return Collection|Application[]
+     */
+    public function getApplications(): Collection
+    {
+        return $this->applications;
+    }
+
+    public function addApplication(Application $title): self
+    {
+        if (!$this->applications->contains($title)) {
+            $this->applications[] = $title;
+            $title->setOwner($this);
+        }
+
+        return $this;
+    }
+
+    public function removeApplication(Application $title): self
+    {
+        if ($this->applications->contains($title)) {
+            $this->applications->removeElement($title);
+            // set the owning side to null (unless already changed)
+            if ($title->getOwner() === $this) {
+                $title->setOwner(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getRole(): ?Role
     {
         return $this->role;
     }
 
-    public function setRole(string $role): self
+    public function setRole(?Role $role): self
     {
         $this->role = $role;
 
         return $this;
+    }
+
+    public function __toString()
+    {
+        return $this->email;
     }
 }

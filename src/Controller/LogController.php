@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Application;
 use App\Entity\Log;
 use App\Form\LogType;
 use App\Repository\LogRepository;
@@ -9,35 +10,34 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-
-
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
 /**
  * @Route("/log")
- * @IsGranted("ROLE_ADMIN")
+ * @IsGranted("ROLE_USER")
  */
 class LogController extends AbstractController
 {
-
     /**
-     * @Route("/csv", name="log_csv", methods={"GET"})
+     * @Route("/application/{id}", name="log_aplication", methods={"GET"})
      */
-    public function csv(LogRepository $logRepository): Response
+    public function logsForApplication(Application $application, LogRepository $logRepository): Response
     {
-        $logs =  $logRepository->findAll();
-        $output = 'id,userId,timestamp,scene,message' . PHP_EOL;
-        foreach ($logs as $log) {
-            $output .= $log;
+        $isAdmin = $this->get('security.authorization_checker')->isGranted('ROLE_ADMIN');
+
+        $user = $this->getUser();
+        $owner = $application->getOwner();
+        if($user != $owner && !$isAdmin){
+            return new Response("sorry - you cannot access logs for an application you don't own ...");
         }
 
-        $response = new Response($output);
+        return $this->render('log/index.html.twig', [
+            'logs' => $logRepository->findBy([
+                'application' => $application
+            ]),
+        ]);
 
-        $response->headers->set('Content-Type', 'text/csv');
-        return $response;
 
-        // or try:
-        // https://gist.github.com/zuzuleinen/6db61b09465e9bc8a7ea
     }
 
     /**
@@ -60,6 +60,12 @@ class LogController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $user = $this->getUser();
+            $owner = $log->getApplication()->getOwner();
+            if($user != $owner){
+                return new Response("sorry - you cannot create a log for an application you don't own ...");
+            }
+
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($log);
             $entityManager->flush();
@@ -78,6 +84,14 @@ class LogController extends AbstractController
      */
     public function show(Log $log): Response
     {
+        $isAdmin = $this->get('security.authorization_checker')->isGranted('ROLE_ADMIN');
+
+        $user = $this->getUser();
+        $owner = $log->getApplication()->getOwner();
+        if($user != $owner && !$isAdmin){
+            return new Response("sorry - you cannot access logs for an application you don't own ...");
+        }
+
         return $this->render('log/show.html.twig', [
             'log' => $log,
         ]);
@@ -88,6 +102,15 @@ class LogController extends AbstractController
      */
     public function edit(Request $request, Log $log): Response
     {
+        $isAdmin = $this->get('security.authorization_checker')->isGranted('ROLE_ADMIN');
+
+
+        $user = $this->getUser();
+        $owner = $log->getApplication()->getOwner();
+        if($user != $owner && !$isAdmin){
+            return new Response("sorry - you cannot access logs for an application you don't own ...");
+        }
+
         $form = $this->createForm(LogType::class, $log);
         $form->handleRequest($request);
 
@@ -108,28 +131,20 @@ class LogController extends AbstractController
      */
     public function delete(Request $request, Log $log): Response
     {
+        $isAdmin = $this->get('security.authorization_checker')->isGranted('ROLE_ADMIN');
+
+        $user = $this->getUser();
+        $owner = $log->getApplication()->getOwner();
+        if($user != $owner && !$isAdmin){
+            return new Response("sorry - you cannot access logs for an application you don't own ...");
+        }
+
+
         if ($this->isCsrfTokenValid('delete'.$log->getId(), $request->request->get('_token'))) {
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->remove($log);
             $entityManager->flush();
         }
-
-        return $this->redirectToRoute('log_index');
-    }
-
-    /**
-     * @Route("/delete_all", name="log_delete_all")
-     */
-    public function deleteAll(LogRepository $logRepository): Response
-    {
-        $entityManager = $this->getDoctrine()->getManager();
-        $entities = $logRepository->findAll();
-
-        foreach ($entities as $entity) {
-            $entityManager->remove($entity);
-        }
-
-        $entityManager->flush();
 
         return $this->redirectToRoute('log_index');
     }
