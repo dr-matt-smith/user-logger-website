@@ -36,6 +36,7 @@ class UserFixtures extends Fixture
         // create objects
         $this->createUser('admin@admin.com', 'myblackcat123', $roleAdmin);
         $this->createUser('Lauren.M.Maher@mytudublin.ie', 'housegame99', $roleUser);
+        $this->createUser('nina.lyons@tudublin.ie', 'Mypassword', $roleUser);
     }
 
     private function createUser($username, $plainPassword, $role)
